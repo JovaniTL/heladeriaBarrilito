@@ -19,7 +19,18 @@ class HeladeriaBarrilitoApp extends StatelessWidget {
       child: MaterialApp(
         title: 'Heladería Barrilito',
         debugShowCheckedModeBanner: false,
-        theme: ThemeData(primarySwatch: Colors.pink, useMaterial3: true),
+        theme: ThemeData(
+          useMaterial3: true,
+          colorScheme: ColorScheme.fromSeed(
+            seedColor: const Color(0xFF0F2C59),
+            primary: const Color(0xFF0F2C59),
+            secondary: const Color(0xFF00A8CC),
+          ),
+          appBarTheme: const AppBarTheme(
+            backgroundColor: Color(0xFF0F2C59),
+            foregroundColor: Colors.white,
+          ),
+        ),
         home: const PosScreen(),
       ),
     );

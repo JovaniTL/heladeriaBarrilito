@@ -94,6 +94,16 @@ class DatabaseHelper {
       'price': 16.0,
       'is_active': 1,
     });
+    await db.execute('''
+      CREATE TABLE cash_cuts (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        start_date TEXT NOT NULL,
+        end_date TEXT NOT NULL,
+        total_amount REAL NOT NULL,
+        total_items INTEGER NOT NULL,
+        summary_json TEXT NOT NULL
+      )
+    ''');
   }
 
   Future<List<Map<String, dynamic>>> getProducts() async {
@@ -135,5 +145,80 @@ class DatabaseHelper {
     ''',
       ['$dateStr%'],
     );
+  }
+
+  Future<int> insertProduct(Map<String, dynamic> row) async {
+    final db = await instance.database;
+    return await db.insert('products', row);
+  }
+
+  Future<int> updateProduct(Map<String, dynamic> row) async {
+    final db = await instance.database;
+    final int id = row['id'];
+    return await db.update('products', row, where: 'id = ?', whereArgs: [id]);
+  }
+
+  Future<int> deleteProduct(int id) async {
+    final db = await instance.database;
+    return await db.delete('products', where: 'id = ?', whereArgs: [id]);
+  }
+
+  // Guardar y cerrar el corte de caja actual
+  Future<int> saveCashCut(
+    String startDate,
+    String endDate,
+    double totalAmount,
+    int totalItems,
+    String summaryJson,
+  ) async {
+    final db = await instance.database;
+    return await db.insert('cash_cuts', {
+      'start_date': startDate,
+      'end_date': endDate,
+      'total_amount': totalAmount,
+      'total_items': totalItems,
+      'summary_json': summaryJson,
+    });
+  }
+
+  Future<List<Map<String, dynamic>>> getCashCutsHistory() async {
+    final db = await instance.database;
+    return await db.query('cash_cuts', orderBy: 'id DESC');
+  }
+
+  Future<void> clearCurrentSales() async {
+    final db = await instance.database;
+    await db.delete('sale_items');
+    await db.delete('sales');
+  }
+
+  // Obtener las ventas individuales realizadas hoy (con hora y total)
+  Future<List<Map<String, dynamic>>> getSalesByDate(String dateStr) async {
+    final db = await instance.database;
+    return await db.query(
+      'sales',
+      where: 'date LIKE ?',
+      whereArgs: ['$dateStr%'],
+      orderBy: 'id DESC',
+    );
+  }
+
+  // Actualizar el total de una venta existente (Corrección por error)
+  Future<int> updateSale(int saleId, double newTotal) async {
+    final db = await instance.database;
+    return await db.update(
+      'sales',
+      {'total': newTotal},
+      where: 'id = ?',
+      whereArgs: [saleId],
+    );
+  }
+
+  // Eliminar una venta errónea
+  Future<int> deleteSale(int saleId) async {
+    final db = await instance.database;
+    // Borramos los detalles y la venta por la llave foránea con CASCADE
+    await db.delete('sale_items', where: 'sale_id = ?', whereArgs: [saleId]);
+    return await db.delete('sales', where: 'id = ?', whereArgs: [saleId]);
   }
 }
