@@ -5,6 +5,7 @@ import 'package:intl/intl.dart';
 import '../../providers/pos_provider.dart';
 import 'catalog_screen.dart';
 import 'summary_screen.dart';
+import '../../core/utils/product_icons.dart';
 
 class PosScreen extends StatefulWidget {
   const PosScreen({super.key});
@@ -46,7 +47,7 @@ class _PosScreenState extends State<PosScreen> {
           'Heladería Barrilito',
           style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white),
         ),
-        backgroundColor: const Color(0xFFE91E63),
+        backgroundColor: const Color(0xFF0F2C59),
         elevation: 2,
         // En los actions de tu AppBar en pos_screen.dart:
         actions: [
@@ -111,7 +112,12 @@ class _PosScreenState extends State<PosScreen> {
                               SnackBar(
                                 content: Text('Agregado: ${product.name}'),
                                 duration: const Duration(milliseconds: 500),
-                                backgroundColor: const Color(0xFFE91E63),
+                                backgroundColor: const Color.fromARGB(
+                                  255,
+                                  12,
+                                  111,
+                                  225,
+                                ),
                               ),
                             );
                           },
@@ -137,12 +143,10 @@ class _PosScreenState extends State<PosScreen> {
                               child: Column(
                                 mainAxisAlignment: MainAxisAlignment.center,
                                 children: [
-                                  Icon(
-                                    product.category == 'Helados'
-                                        ? Icons.icecream
-                                        : Icons.auto_awesome,
-                                    color: const Color(0xFFE91E63),
-                                    size: 36,
+                                  ProductIconHelper.buildProductEmoji(
+                                    product.name,
+                                    product.category,
+                                    size: 32,
                                   ),
                                   const SizedBox(height: 8),
                                   Text(
@@ -207,7 +211,7 @@ class _PosScreenState extends State<PosScreen> {
                           style: const TextStyle(
                             fontSize: 20,
                             fontWeight: FontWeight.bold,
-                            color: Color(0xFFE91E63),
+                            color: Color(0xFF0F2C59),
                           ),
                         ),
                       ],
@@ -332,7 +336,7 @@ class CartBottomSheet extends StatelessWidget {
                 style: const TextStyle(
                   fontSize: 22,
                   fontWeight: FontWeight.bold,
-                  color: Color(0xFFE91E63),
+                  color: Color(0xFF0F2C59),
                 ),
               ),
             ],

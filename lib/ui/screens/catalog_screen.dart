@@ -4,6 +4,7 @@ import 'package:intl/intl.dart';
 
 import '../../providers/pos_provider.dart';
 import '../../data/models/product_model.dart';
+import '../../core/utils/product_icons.dart';
 
 class CatalogScreen extends StatelessWidget {
   const CatalogScreen({super.key});
@@ -20,19 +21,12 @@ class CatalogScreen extends StatelessWidget {
         return const Color(0xFF00A8CC); // Turquesa fresco
       case 'Paletas':
         return const Color(0xFFFF9800); // Naranja mango
+      case 'Aguas':
+        return const Color(0xFF4CAF50); // Verde agua fresca
+      case 'Vasos de helado':
+        return const Color(0xFF9C27B0); // Morado para vasos
       default:
         return const Color(0xFF795548); // Marrón artesanal
-    }
-  }
-
-  IconData _getCategoryIcon(String category) {
-    switch (category) {
-      case 'Helados':
-        return Icons.icecream_outlined;
-      case 'Paletas':
-        return Icons.auto_awesome;
-      default:
-        return Icons.storefront;
     }
   }
 
@@ -169,8 +163,7 @@ class CatalogScreen extends StatelessWidget {
                                     size,
                                     style: const TextStyle(fontSize: 11),
                                   ),
-                                  visualDensity: VisualDensity
-                                      .compact, // ✅ equivalente moderno
+                                  visualDensity: VisualDensity.compact,
                                   backgroundColor: Colors.grey[200],
                                   onPressed: () {
                                     if (!nameController.text.contains(size)) {
@@ -196,33 +189,38 @@ class CatalogScreen extends StatelessWidget {
                               spacing: 8,
                               runSpacing: 8,
                               alignment: WrapAlignment.start,
-                              children: ['Helados', 'Paletas', 'Otros'].map((
-                                cat,
-                              ) {
-                                final isSelected = selectedCategory == cat;
-                                final color = _getCategoryColor(cat);
-                                return ChoiceChip(
-                                  label: Text(
-                                    cat,
-                                    style: TextStyle(
-                                      color: isSelected
-                                          ? Colors.white
-                                          : primaryNavy,
-                                      fontWeight: FontWeight.bold,
-                                    ),
-                                  ),
-                                  selected: isSelected,
-                                  selectedColor: color,
-                                  backgroundColor: Colors.grey[100],
-                                  onSelected: (selected) {
-                                    if (selected) {
-                                      setStateDialog(
-                                        () => selectedCategory = cat,
-                                      );
-                                    }
-                                  },
-                                );
-                              }).toList(),
+                              children:
+                                  [
+                                    'Helados',
+                                    'Paletas',
+                                    'Aguas',
+                                    'Vasos de helado',
+                                    'Otros',
+                                  ].map((cat) {
+                                    final isSelected = selectedCategory == cat;
+                                    final color = _getCategoryColor(cat);
+                                    return ChoiceChip(
+                                      label: Text(
+                                        cat,
+                                        style: TextStyle(
+                                          color: isSelected
+                                              ? Colors.white
+                                              : primaryNavy,
+                                          fontWeight: FontWeight.bold,
+                                        ),
+                                      ),
+                                      selected: isSelected,
+                                      selectedColor: color,
+                                      backgroundColor: Colors.grey[100],
+                                      onSelected: (selected) {
+                                        if (selected) {
+                                          setStateDialog(
+                                            () => selectedCategory = cat,
+                                          );
+                                        }
+                                      },
+                                    );
+                                  }).toList(),
                             ),
                             const SizedBox(height: 16),
 
@@ -357,7 +355,12 @@ class CatalogScreen extends StatelessWidget {
               ),
             )
           : ListView.builder(
-              padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 12),
+              padding: const EdgeInsets.only(
+                top: 10,
+                bottom: 88,
+                left: 12,
+                right: 12,
+              ),
               itemCount: posProvider.products.length,
               itemBuilder: (context, index) {
                 final product = posProvider.products[index];
@@ -380,9 +383,9 @@ class CatalogScreen extends StatelessWidget {
                         color: color.withValues(alpha: 0.12),
                         borderRadius: BorderRadius.circular(10),
                       ),
-                      child: Icon(
-                        _getCategoryIcon(product.category),
-                        color: color,
+                      child: ProductIconHelper.buildProductEmoji(
+                        product.name,
+                        product.category,
                         size: 24,
                       ),
                     ),
@@ -394,7 +397,10 @@ class CatalogScreen extends StatelessWidget {
                         color: primaryNavy,
                       ),
                     ),
-                    subtitle: Row(
+                    subtitle: Wrap(
+                      spacing: 8,
+                      runSpacing: 4,
+                      alignment: WrapAlignment.start,
                       children: [
                         Text(
                           product.category,
@@ -404,7 +410,6 @@ class CatalogScreen extends StatelessWidget {
                             fontSize: 12,
                           ),
                         ),
-                        const SizedBox(width: 8),
                         Text(
                           currencyFormat.format(product.price),
                           style: const TextStyle(
@@ -419,18 +424,28 @@ class CatalogScreen extends StatelessWidget {
                       mainAxisSize: MainAxisSize.min,
                       children: [
                         IconButton(
+                          constraints: const BoxConstraints.tightFor(
+                            width: 28,
+                            height: 28,
+                          ),
+                          padding: EdgeInsets.zero,
                           icon: const Icon(
                             Icons.edit,
                             color: accentTurquoise,
-                            size: 22,
+                            size: 18,
                           ),
                           onPressed: () => showProductDialog(product: product),
                         ),
                         IconButton(
+                          constraints: const BoxConstraints.tightFor(
+                            width: 28,
+                            height: 28,
+                          ),
+                          padding: EdgeInsets.zero,
                           icon: const Icon(
                             Icons.delete_outline,
                             color: Colors.redAccent,
-                            size: 22,
+                            size: 18,
                           ),
                           onPressed: () async {
                             bool? confirm = await showDialog(
@@ -478,11 +493,12 @@ class CatalogScreen extends StatelessWidget {
         elevation: 3,
         icon: const Icon(Icons.add_circle_outline),
         label: const Text(
-          'NUEVO PRODUCTO',
+          'Agregar',
           style: TextStyle(fontWeight: FontWeight.bold),
         ),
         onPressed: () => showProductDialog(),
       ),
+      floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
     );
   }
 }

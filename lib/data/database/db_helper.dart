@@ -17,7 +17,12 @@ class DatabaseHelper {
     final dbPath = await getDatabasesPath();
     final path = join(dbPath, filePath);
 
-    return await openDatabase(path, version: 1, onCreate: _createDB);
+    return await openDatabase(
+      path,
+      version: 2,
+      onCreate: _createDB,
+      onUpgrade: _upgradeDB,
+    );
   }
 
   Future _createDB(Database db, int version) async {
@@ -94,6 +99,18 @@ class DatabaseHelper {
       'price': 16.0,
       'is_active': 1,
     });
+    await db.insert('products', {
+      'name': 'Agua de Sandía',
+      'category': 'Aguas',
+      'price': 18.0,
+      'is_active': 1,
+    });
+    await db.insert('products', {
+      'name': 'Vaso de Vainilla',
+      'category': 'Vasos de helado',
+      'price': 30.0,
+      'is_active': 1,
+    });
     await db.execute('''
       CREATE TABLE cash_cuts (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -104,6 +121,27 @@ class DatabaseHelper {
         summary_json TEXT NOT NULL
       )
     ''');
+  }
+
+  Future _upgradeDB(Database db, int oldVersion, int newVersion) async {
+    if (oldVersion < 2) {
+      final tables = await db.rawQuery(
+        "SELECT name FROM sqlite_master WHERE type='table' AND name='cash_cuts'",
+      );
+
+      if (tables.isEmpty) {
+        await db.execute('''
+          CREATE TABLE cash_cuts (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            start_date TEXT NOT NULL,
+            end_date TEXT NOT NULL,
+            total_amount REAL NOT NULL,
+            total_items INTEGER NOT NULL,
+            summary_json TEXT NOT NULL
+          )
+        ''');
+      }
+    }
   }
 
   Future<List<Map<String, dynamic>>> getProducts() async {
@@ -184,6 +222,30 @@ class DatabaseHelper {
   Future<List<Map<String, dynamic>>> getCashCutsHistory() async {
     final db = await instance.database;
     return await db.query('cash_cuts', orderBy: 'id DESC');
+  }
+
+  Future<int> updateCashCut(
+    int id,
+    double totalAmount,
+    int totalItems,
+    String summaryJson,
+  ) async {
+    final db = await instance.database;
+    return await db.update(
+      'cash_cuts',
+      {
+        'total_amount': totalAmount,
+        'total_items': totalItems,
+        'summary_json': summaryJson,
+      },
+      where: 'id = ?',
+      whereArgs: [id],
+    );
+  }
+
+  Future<int> deleteCashCut(int id) async {
+    final db = await instance.database;
+    return await db.delete('cash_cuts', where: 'id = ?', whereArgs: [id]);
   }
 
   Future<void> clearCurrentSales() async {

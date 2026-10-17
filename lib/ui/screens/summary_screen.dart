@@ -85,7 +85,7 @@ class _SummaryScreenState extends State<SummaryScreen> {
       backgroundColor: const Color(0xFFF7F9FC),
       appBar: AppBar(
         title: const Text(
-          'Ventas del Día y Corte',
+          'Ventas del Día',
           style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white),
         ),
         backgroundColor: primaryNavy,
@@ -220,7 +220,7 @@ class _SummaryScreenState extends State<SummaryScreen> {
                             borderRadius: BorderRadius.circular(14),
                             boxShadow: [
                               BoxShadow(
-                                color: Colors.grey.withOpacity(0.1),
+                                color: Colors.grey.withValues(alpha: 0.1),
                                 blurRadius: 4,
                                 offset: const Offset(0, 2),
                               ),
@@ -232,7 +232,9 @@ class _SummaryScreenState extends State<SummaryScreen> {
                               Container(
                                 padding: const EdgeInsets.all(10),
                                 decoration: BoxDecoration(
-                                  color: accentTurquoise.withOpacity(0.12),
+                                  color: accentTurquoise.withValues(
+                                    alpha: 0.12,
+                                  ),
                                   borderRadius: BorderRadius.circular(10),
                                 ),
                                 child: const Icon(

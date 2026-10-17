@@ -139,6 +139,26 @@ class PosProvider with ChangeNotifier {
     notifyListeners();
   }
 
+  Future<void> updateCashCut(
+    int id,
+    double totalAmount,
+    int totalItems,
+    String summaryJson,
+  ) async {
+    await DatabaseHelper.instance.updateCashCut(
+      id,
+      totalAmount,
+      totalItems,
+      summaryJson,
+    );
+    await loadCashCutsHistory();
+  }
+
+  Future<void> deleteCashCut(int id) async {
+    await DatabaseHelper.instance.deleteCashCut(id);
+    await loadCashCutsHistory();
+  }
+
   // Cerrar el día actual, guardarlo en el historial y limpiar ventas
   Future<bool> closeAndSaveDay(double totalAmount, int totalItems) async {
     try {
